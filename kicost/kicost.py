@@ -365,7 +365,7 @@ def kicost(in_file, eda_tool_name, out_filename,
         logger.log(DEBUG_OVERVIEW, '# Getting part data from Octopart...')
 
         # Translate from Octopart distributor names to the names used internally by kicost.
-        dist_xlate = {'Digi-Key':'digikey', 'Mouser':'mouser', 'Newark':'newark', 'Farnell':'farnell', 'RS Components':'rs', 'TME':'tme'}
+        dist_xlate = {'Digi-Key':'digikey', 'Mouser':'mouser', 'Newark':'newark', 'Farnell':'farnell', 'RS Components':'rs', 'TME':'tme', 'Arrow Electronics, Inc.':'arrow'}
 
         def get_part_info(query, parts):
             """Query Octopart for quantity/price info and place it into the parts list."""
@@ -388,7 +388,6 @@ def kicost(in_file, eda_tool_name, out_filename,
                         # price/qty info to the parts list if its one of the accepted distributors.
                         dist = dist_xlate.get(offer['seller']['name'], '')
                         if dist in distributor_dict:
-
                             # Get pricing information from this distributor.
                             try:
                                 price_tiers = {} # Empty dict in case of exception.
