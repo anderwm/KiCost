@@ -55,7 +55,7 @@ class dist_digikey(distributor.distributor):
                 'module': 'digikey', # The directory name containing this file.
                 'scrape': 'web',     # Allowable values: 'web' or 'local'.
                 'label': 'Digi-Key', # Distributor label used in spreadsheet columns.
-                'order_cols': ['purch', 'part_num', 'refs'],  # Sort-order for online orders.
+                'order_cols': ['purch', 'part_num', 'find', 'refs'],  # Sort-order for online orders.
                 'order_delimiter': ',',  # Delimiter for online orders.
                 # Formatting for distributor header in worksheet.
                 'wrk_hdr_format': {

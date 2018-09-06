@@ -296,8 +296,16 @@ def add_globals_to_worksheet(wks, wrk_formats, start_row, start_col,
 
     # Columns for the various types of global part data.
     columns = {
-        'refs': {
+            'find': {
             'col': 0,
+            'level': 0,  # Outline level (or hierarchy level) for this column.
+            'label': 'Find',
+            'width': None,  # Column width (default in this case).
+            'comment': 'Find number/line item number.',
+            'static': False,
+        },
+        'refs': {
+            'col': 1,
             'level': 0,  # Outline level (or hierarchy level) for this column.
             'label': 'Refs',
             'width': None,  # Column width (default in this case).
@@ -305,7 +313,7 @@ def add_globals_to_worksheet(wks, wrk_formats, start_row, start_col,
             'static': False,
         },
         'value': {
-            'col': 1,
+            'col': 2,
             'level': 0,
             'label': 'Value',
             'width': None,
@@ -313,7 +321,7 @@ def add_globals_to_worksheet(wks, wrk_formats, start_row, start_col,
             'static': True,
         },
         'desc': {
-            'col': 2,
+            'col': 3,
             'level': 0,
             'label': 'Desc',
             'width': None,
@@ -321,7 +329,7 @@ def add_globals_to_worksheet(wks, wrk_formats, start_row, start_col,
             'static': True,
         },
         'footprint': {
-            'col': 3,
+            'col': 4,
             'level': 0,
             'label': 'Footprint',
             'width': None,
@@ -329,7 +337,7 @@ def add_globals_to_worksheet(wks, wrk_formats, start_row, start_col,
             'static': True,
         },
         'manf': {
-            'col': 4,
+            'col': 5,
             'level': 0,
             'label': 'Manf',
             'width': None,
@@ -337,7 +345,7 @@ def add_globals_to_worksheet(wks, wrk_formats, start_row, start_col,
             'static': True,
         },
         'manf#': {
-            'col': 5,
+            'col': 6,
             'level': 0,
             'label': 'Manf#',
             'width': None,
@@ -345,7 +353,7 @@ def add_globals_to_worksheet(wks, wrk_formats, start_row, start_col,
             'static': True,
         },
         'qty': {
-            'col': 6,
+            'col': 7,
             'level': 0,
             'label': 'Qty',
             'width': None,
@@ -357,7 +365,7 @@ Yellow -> Enough parts available, but haven't purchased enough.''',
             'static': False,
         },
         'unit_price': {
-            'col': 7,
+            'col': 8,
             'level': 0,
             'label': 'Unit$',
             'width': None,
@@ -365,7 +373,7 @@ Yellow -> Enough parts available, but haven't purchased enough.''',
             'static': False,
         },
         'ext_price': {
-            'col': 8,
+            'col': 9,
             'level': 0,
             'label': 'Ext$',
             'width': 15,  # Displays up to $9,999,999.99 without "###".
@@ -468,8 +476,11 @@ Yellow -> Enough parts available, but haven't purchased enough.''',
     parts.sort(key=get_ref_key)
 
     # Add the global part data to the spreadsheet.
+    find_number = 1
     for part in parts:
 
+        wks.write(row, start_col + columns['find']['col'], find_number, wrk_formats['part_format'])
+        find_number = find_number + 1
         # Enter part references.
         wks.write_string(row, start_col + columns['refs']['col'], part.collapsed_refs, wrk_formats['part_format'])
 
@@ -955,7 +966,7 @@ Orange -> Too little quantity available.'''
     for position, col_tag in enumerate(distributor_dict[dist]['order_cols']):
         order_col[col_tag] = ORDER_START_COL + position  # Column for this order info.
         order_col_numeric[col_tag] = (col_tag ==
-                                      'purch')  # Is this order info numeric?
+                                      'purch' or col_tag == 'find')  # Is this order info numeric?
         order_delimiter[col_tag] = distributor_dict[dist][
             'order_delimiter'
         ]  # Delimiter btwn order columns.
@@ -968,7 +979,11 @@ Orange -> Too little quantity available.'''
         try:
             dist_col[col_tag] = start_col + columns[col_tag]['col']
         except KeyError:
-            dist_col[col_tag] = part_ref_col
+            print(col_tag)
+            if col_tag == 'find':
+                dist_col[col_tag] = part_ref_col - 1
+            else:
+                dist_col[col_tag] = part_ref_col
 
     def enter_order_info(info_col, order_col, numeric=False, delimiter=''):
         # This function enters a function into a spreadsheet cell that
@@ -1072,7 +1087,7 @@ Orange -> Too little quantity available.'''
         'Copy the information below to the BOM import page of the distributor web site.')
 
     # For every column in the order info range, enter the part order information.
-    for col_tag in ('purch', 'part_num', 'refs'):
+    for col_tag in ('purch', 'part_num', 'refs', 'find'):
         enter_order_info(dist_col[col_tag], order_col[col_tag],
                          numeric=order_col_numeric[col_tag],
                          delimiter=order_delimiter[col_tag])
